@@ -1,5 +1,8 @@
 class Customer():
-    '''customer'''
-    def __init__(self, name, id):
-        self.name = name
+    '''docstring'''
+    def __init__(self, id, name, address, email = "", password = ""):
         self.id = id
+        self.name = name
+        self.address = address
+        self.email = email
+        self.password = password

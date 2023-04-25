@@ -21,9 +21,12 @@ def get_all_employees():
         # Write the SQL query to get the information you want
         db_cursor.execute("""
         SELECT
-            a.id,
-            a.name
-        FROM employee a
+            c.id,
+            c.name,
+            c.address,
+            c.location_id,
+            c.address
+        FROM employee c
         """)
 
         # Initialize an empty list to hold all employee representations
@@ -39,7 +42,7 @@ def get_all_employees():
             # Note that the database fields are specified in
             # exact order of the parameters defined in the
             # employee class above.
-            employee = Employee(row['id'], row['name'])
+            employee = Employee(row['id'], row['name'], row['location_id'], row['address'])
 
             employees.append(employee.__dict__)
             # see the notes below for an explanation on this line of code.
@@ -57,19 +60,49 @@ def get_single_employee(id):
         # into the SQL statement.
         db_cursor.execute("""
         SELECT
-            a.id,
-            a.name
-        FROM employee a
-        WHERE a.id = ?
+            c.id,
+            c.name,
+            c.address,
+            c.location_id,
+            c.address
+        FROM employee c
+        WHERE c.id = ?
         """, ( id, ))
 
         # Load the single result into memory
         data = db_cursor.fetchone()
 
         # Create an employee instance from the current row
-        employee = Employee(data['id'], data['name'])
+        employee = Employee(data['id'], data['name'], data['location_id'], data['address'])
 
         return employee.__dict__
+
+def get_employees_by_location(location_id):
+    '''docstring'''
+    with sqlite3.connect("./kennel.sqlite3") as conn:
+        conn.row_factory = sqlite3.Row
+        db_cursor = conn.cursor()
+
+        # Write the SQL query to get the information you want
+        db_cursor.execute("""
+        SELECT
+            c.id,
+            c.name,
+            c.address,
+            c.location_id,
+            c.address
+        from Employee c
+        WHERE c.location_id = ?
+        """, ( location_id, ))
+
+        employees = []
+        dataset = db_cursor.fetchall()
+
+        for row in dataset:
+            employee = Employee(row['id'], row['name'], row['location_id'], row['address'])
+            employees.append(employee.__dict__)
+
+    return employees
 
 def create_employee(employee):
     '''makes a new employee'''
