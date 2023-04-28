@@ -1,6 +1,6 @@
 import sqlite3
 import json
-from models import Employee
+from models import Employee, Location
 
 EMPLOYEES = [
     {
@@ -25,8 +25,11 @@ def get_all_employees():
             c.name,
             c.address,
             c.location_id,
-            c.address
+            l.name location_name,
+            l.address location_address
         FROM employee c
+        JOIN Location l
+            ON l.id = c.location_id
         """)
 
         # Initialize an empty list to hold all employee representations
@@ -43,6 +46,10 @@ def get_all_employees():
             # exact order of the parameters defined in the
             # employee class above.
             employee = Employee(row['id'], row['name'], row['location_id'], row['address'])
+
+            location = Location(row['id'], row['location_name'], row['location_address'])
+
+            employee.location = location.__dict__
 
             employees.append(employee.__dict__)
             # see the notes below for an explanation on this line of code.
@@ -64,7 +71,6 @@ def get_single_employee(id):
             c.name,
             c.address,
             c.location_id,
-            c.address
         FROM employee c
         WHERE c.id = ?
         """, ( id, ))

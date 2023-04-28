@@ -71,10 +71,58 @@ SELECT
     a.location_id,
     a.customer_id
 FROM animal a
-WHERE a.id = 5
+WHERE a.location_id = 1
 
 SELECT
     a.id,
     a.name
 FROM customer a
 WHERE a.id = 1
+
+SELECT
+    a.id,
+    a.name,
+    a.breed,
+    a.status,
+    a.location_id,
+    a.customer_id,
+    l.name location_name,
+    l.address location_address,
+    c.name customer_name,
+    c.address customer_address,
+    c.email customer_email
+FROM Animal a
+JOIN Location l
+    ON l.id = a.location_id
+JOIN Customer c
+    ON c.id = a.customer_id
+
+SELECT
+    c.id,
+    c.name,
+    c.address,
+    c.location_id,
+    c.address,
+    l.name location_name,
+    l.address location_address
+FROM employee c
+JOIN Location l
+    ON l.id = c.location_id
+
+SELECT
+    l.id,
+    l.name,
+    l.address,
+    c.name employee_name,
+    c.address employee_address,
+    c.location_id employee_location_id,
+    a.name animal_name,
+    a.breed animal_breed,
+    a.status animal_status,
+    a.location_id animal_location_id,
+    a.customer_id animal_customer_id
+FROM Location l
+JOIN Employee c
+    ON l.id = c.location_id
+JOIN Animal a
+    ON l.id = a.location_id
