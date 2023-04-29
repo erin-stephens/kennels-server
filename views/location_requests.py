@@ -1,6 +1,6 @@
 import sqlite3
 import json
-from models import Location
+from models import Location, Employee, Animal, Customer
 
 LOCATIONS = [
     {
@@ -27,9 +27,10 @@ def get_all_locations():
         # Write the SQL query to get the information you want
         db_cursor.execute("""
         SELECT
-            a.id,
-            a.address
-        FROM location a
+            l.id,
+            l.name,
+            l.address
+        FROM Location l
         """)
 
         # Initialize an empty list to hold all location representations
@@ -45,7 +46,7 @@ def get_all_locations():
             # Note that the database fields are specified in
             # exact order of the parameters defined in the
             # location class above.
-            location = Location(row['id'], row['address'])
+            location = Location(row['id'], row ['name'], row['address'])
 
             locations.append(location.__dict__)
             # see the notes below for an explanation on this line of code.
@@ -63,19 +64,70 @@ def get_single_location(id):
         # into the SQL statement.
         db_cursor.execute("""
         SELECT
-            a.id,
-            a.address
-        FROM location a
-        WHERE a.id = ?
+            l.id,
+            l.name,
+            l.address
+        FROM Location l
+        WHERE l.id = ?
         """, ( id, ))
 
         # Load the single result into memory
         data = db_cursor.fetchone()
 
         # Create an location instance from the current row
-        location = Location(data['id'], data['address'])
+        location = Location(data['id'], data['name'] ,data['address'])
 
-        return location.__dict__
+        db_cursor2 = conn.cursor()
+        db_cursor2.execute("""
+            SELECT
+                a.id,
+                a.name,
+                a.breed,
+                a.status,
+                a.location_id,
+                a.customer_id,
+                l.name location_name,
+                l.address location_address,
+                c.name customer_name,
+                c.address customer_address,
+                c.email customer_email
+            FROM Animal a
+            JOIN Location l
+                ON l.id = a.location_id
+            JOIN Customer c
+                ON c.id = a.customer_id
+            WHERE location_id = ?
+            """, ( id, ))
+        animals = []
+        dataset2 = db_cursor2.fetchall()
+        for row in dataset2:
+            animal = Animal(row['id'], row['name'], row['breed'], row['status'],
+                                row['location_id'], row['customer_id'])
+            location = Location(row['id'], row['location_name'], row['location_address'])
+            customer = Customer(row['id'], row['customer_name'],
+                                row ['customer_address'], row['customer_email'])
+            animal.location = location.__dict__
+            animal.customer = customer.__dict__
+            animals.append(animal.__dict__)
+            location.animal = animals
+
+        db_cursor3 = conn.cursor()
+        db_cursor3.execute("""
+            SELECT
+            c.id,
+            c.name,
+            c.address,
+            c.location_id
+        FROM employee c
+            WHERE location_id = ?
+            """, ( id, ))
+        employees = []
+        dataset3 = db_cursor3.fetchall()
+        for row in dataset3:
+            employee = Employee(row['id'], row['name'], row['location_id'], row['address'])
+            employees.append(employee.__dict__)
+            location.employee = employees
+    return location.__dict__
 
 def create_location(location):
     '''makes a new location'''
