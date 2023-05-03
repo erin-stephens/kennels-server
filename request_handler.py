@@ -6,7 +6,7 @@ from views import get_all_employees, get_single_employee, get_all_customers, get
 from views import get_customer_by_email,get_animal_by_location, get_employees_by_location,get_animal_by_status
 from views import create_animal, create_location, create_employee, create_customer
 from views import delete_animal, delete_location, delete_employee, delete_customer
-from views import update_animal, update_customer, update_employee, update_location
+from views import update_animal, update_customer, update_employee, update_location, search_animal
 
 
 # Here's a class. It inherits from another class.
@@ -110,6 +110,8 @@ class HandleRequests(BaseHTTPRequestHandler):
                 response = get_employees_by_location(query['location_id'][0])
             if query.get('status') and resource == 'animals':
                 response = get_animal_by_status(query['status'][0])
+            if query.get('search') and resource == 'animals':
+                response = search_animal(query['search'][0])
         self.wfile.write(json.dumps(response).encode())
 
     # Here's a method on the class that overrides the parent's method.
